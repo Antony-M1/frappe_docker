@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+  database:
+    container_name: mariadb-database
+    image: mariadb:10.6
+    restart: unless-stopped
+    healthcheck:
+      test: mysqladmin ping -h localhost --password=${DB_PASSWORD:-changeit}
+      interval: 1s
+      retries: 15
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-changeit}
+    volumes:
+      - db-data:/var/lib/mysql
+      # - /home/erp-softsuave/ERP/mariadb-cnf/50-server.cnf/etc/mysql/mariadb.conf.d/50-server.cnf
+      - ../mariadb-cnf/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
+    networks:
+      - mariadb-network
+
+networks:
+  mariadb-network:
+    name: mariadb-network
+    external: false
+
+volumes:
+  db-data:
